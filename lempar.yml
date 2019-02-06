@@ -1,0 +1,8 @@
+- name: Lempar source 
+  hosts: msnburhel
+  tasks:
+    - name: start lempar
+      copy: 
+        src:  /home/admin/Downloads/ansible-tower-setup-latest.tar.gz
+        dest: /home/
+   

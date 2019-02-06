@@ -1,0 +1,15 @@
+- name: Join domain windows server to asia.com
+  hosts: win
+  tasks:
+  - win_domain_membership:
+      dns_domain_name: asia.com
+      hostname: SVR02
+      domain_admin_user: administrator@asia.com
+      domain_admin_password: "P@ssw0rd"
+      domain_ou_path: "OU=Windows,OU=Servers,DC=ansible,DC=vagrant"
+      state: domain
+    register: domain_state
+
+  - win_reboot:
+    when: domain_state.reboot_required
+

@@ -1,0 +1,9 @@
+- name: sending netbackup client
+  hosts: windows
+  gather_facts: no
+  tasks:
+  - name: Sending netbackup client source
+    win_copy: 
+      src: /home/admin/ansi-man/imp-playbook/NetBackup_8.1.2_Win/x64
+      dest: C:\
+

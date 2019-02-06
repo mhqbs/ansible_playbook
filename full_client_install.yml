@@ -1,0 +1,47 @@
+- name: runnning & install netbackup client
+  hosts: dev
+  gather_facts: no
+  tasks:
+  - name: Sending netbackup client source
+    unarchive: 
+      src:  /home/admin/Downloads/NetBackup_8.1.2_CLIENTS2.tar.gz
+      dest: /tmp
+
+  - name: Install python-pexpect
+    copy:
+      src: /home/admin/ansi-man/imp-playbook/python-pexpect-3.3-6.1.noarch.rpm
+      dest: /tmp/
+
+  - name: Install rpm pexpect
+    shell:  rpm -Uvh /tmp/python-pexpect-3.3-6.1.noarch.rpm
+
+  - name: Adding master server hosts
+    shell:  echo "192.168.110.63   msnburhel" >> /etc/hosts
+
+  - name: Execute install netbackup 
+    expect: 
+      timeout: 300
+      echo: yes
+      command:  /tmp/NetBackup_8.1.2_CLIENTS2/install
+      responses:
+        "Do you wish to continue": "y"    
+        "Do you want to install the NetBackup client software for this client": "y"
+        "Enter the name of the NetBackup master server": "msnburhel"
+        "name of the NetBackup client": "y"
+        "Is this correct": "y"
+        "Enter the authorization token for msnburhel or q to skip": "WSVYOROQWNQYUJLO"
+    register: prompt
+  - debug:
+      var: prompt.stdout_lines
+
+  - name: start netbackup service
+    shell:  "/usr/openv/netbackup/bin/bp.start_all -f"
+
+  - name: remove temporary file
+    command:  rm -rf /tmp/NetBackup_8.1.2_CLIENTS2/
+
+  - name: remove temporary file
+    command:  rpm -e python-pexpect-3.3-6.1.noarch
+
+  - name: remove temporary file
+    command:  rm -rf /tmp/python-pexpect-3.3-6.1.noarch.rpm
