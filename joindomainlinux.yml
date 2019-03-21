@@ -1,0 +1,14 @@
+- name: Join domain linux to windows
+  hosts: linuxclient
+  tasks:
+  - name: Add linux computer to Active Directory OU using a windows machine
+    win_domain_computer:
+      name: servera
+      sam_account_name: servera$
+      ou: "OU=ID,DC=ASIA,DC=com"
+      dns_hostname: servera
+      description: Example of linux server
+      enabled: yes
+      state: present
+    delegate_to: SVR02.ASIA.COM
+

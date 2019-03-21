@@ -1,0 +1,9 @@
+- name: Get User Domain at ASIA.COM 
+  hosts: asiadomain
+  gather_facts: no
+  tasks:
+    - name: Send get-aduser to command
+      win_shell:  Get-ADUser -Filter * -SearchBase "OU=ID,DC=ASIA,DC=com" >> C:\export
+
+    - name: fetching user data
+      fetch: src=C:/export dest=/home/admin/ansi-man/imp-playbook/export flat=yes 

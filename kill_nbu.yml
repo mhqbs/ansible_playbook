@@ -1,0 +1,14 @@
+- name: Stop netbackup service
+  hosts: nbu
+  tasks:
+    - name: stop netbackup service
+      shell:  "/usr/openv/netbackup/bin/bp.kill_all -f"
+    
+    - name: stop pbx service
+      shell:  "/opt/VRTSpbx/bin/vxpbx_exchanged stop"
+    
+    - name: checking netbackup service
+      shell:  "/usr/openv/netbackup/bin/bpps -x"
+      register: stdout
+    - debug:
+        var: stdout

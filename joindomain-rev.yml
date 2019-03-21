@@ -1,0 +1,10 @@
+- name: Join domain linux server to asia.com
+  hosts: linux
+  tasks:
+    - name: Sending Script
+      win_copy:
+        src: myScript.ps1
+        dest: C:\myScript.ps1
+
+    - name: runing script
+      win_shell: C:\myScript.ps1 

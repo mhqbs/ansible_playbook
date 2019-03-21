@@ -1,0 +1,6 @@
+---
+- name: Echo hosts master server
+  hosts:  dev nbu1
+  - tasks:
+    - name:
+      shell:  echo 192.168.110.63   msnburhel >> /etc/hosts

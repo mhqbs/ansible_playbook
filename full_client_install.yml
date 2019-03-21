@@ -1,5 +1,5 @@
 - name: runnning & install netbackup client
-  hosts: dev
+  hosts: deploy
   gather_facts: no
   tasks:
   - name: Sending netbackup client source
@@ -39,9 +39,6 @@
 
   - name: remove temporary file
     command:  rm -rf /tmp/NetBackup_8.1.2_CLIENTS2/
-
-  - name: remove temporary file
-    command:  rpm -e python-pexpect-3.3-6.1.noarch
 
   - name: remove temporary file
     command:  rm -rf /tmp/python-pexpect-3.3-6.1.noarch.rpm

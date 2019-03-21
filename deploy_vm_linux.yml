@@ -1,0 +1,43 @@
+---
+- name: Deploy a guest from a template
+  hosts:  localhost
+  vars:
+    vcenter_hostname: 192.168.110.11
+    vcenter_username: administrator
+    vcenter_password: P@ssw0rd 
+  tasks:
+  - name: Create a virtual machine from a template
+    vmware_guest:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: no
+      datacenter: vcenter6
+      cluster: cluster
+      folder: /
+      name: iqbal-new-client
+      state: poweredon
+      template: linuxtemplate
+      disk:
+      - size_gb: 16
+        type: thin
+        datastore: ESXi_Datastore_VM0
+      hardware:
+        memory_gb: 2
+        num_cpus: 2
+        num_cpu_cores_per_socket: 1
+        scsi: paravirtual
+        hotadd_cpu: True
+        hotremove_cpu: True
+        hotadd_memory: False
+      cdrom:
+        type: iso
+        iso_path: "[ESXi_Datastore_Critical] ISO/centos/CentOS-7-x86_64-DVD-1804.iso"
+      networks:
+      - name: DPortGroup-vlan30 
+        ip: 192.168.110.69
+        netmask:  255.255.255.0
+        gateway:  192.168.110.254
+      wait_for_ip_address: yes
+    delegate_to: localhost
+    register: deploy

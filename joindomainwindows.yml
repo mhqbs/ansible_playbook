@@ -1,0 +1,14 @@
+- name: add windows computer to OU AD
+  hosts: SVR02.ASIA.COM
+  tasks:
+  - name: Add win computer to Active Directory OU using a windows machine
+    win_domain_computer:
+      name: winmssql
+      sam_account_name: winmssql$
+      ou:  "CN=Computers,DC=ASIA,DC=com"
+      dns_hostname: winmssql
+      description: Example of windows server
+      enabled: yes
+      state: present
+    delegate_to: SVR02.ASIA.COM
+

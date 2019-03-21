@@ -1,0 +1,37 @@
+- name: change windows server hostname
+  hosts: windows
+  gather_facts: no
+  vars:
+    new_host: windeploynew
+    ip_new: 192.168.110.73
+    mask_new: 255.255.255.0
+    gate_new: 192.168.110.254
+
+  tasks:
+    - name: waiting connection
+      wait_for_connection:
+        delay: 60
+        timeout: 300
+    - name: installing netbackup client
+      win_command:  C:/x64/silentclient.cmd
+
+- name: update hosts file
+  hosts:  localhost
+  gather_facts: no
+  vars:
+    new_host: windeploynew
+    ip_new: 192.168.110.73
+
+  tasks:
+    - name: updating hosts file
+      shell: echo "{{ ip_new }}"  "{{ new_host }}" >> /etc/hosts
+
+- name: updating master server client
+  hosts:  master
+  gather_facts: no
+  vars:
+    new_host: windeploynew
+    ip_new:
+  tasks:
+    - name: updating hosts file
+      shell: echo "{{ ip_new }}"  "{{ new_host }}" >> /etc/hosts

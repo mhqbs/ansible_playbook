@@ -1,11 +1,15 @@
+[hana]
+hana1
+
+[asiadomain]
+SVR02.ASIA.COM
+
 [windows]
 winmssql
+iqbal-windeploy
 
 [towers]
 tower
-
-[win]
-SVR02
 
 [devs]
 serverc.lab.com
@@ -17,8 +21,12 @@ msnburhel
 [media]
 serverb.lab.com
 
-[dev]
+[linuxclient]
 servera.lab.com
+
+[linuxclient:vars]
+ansible_user=root
+ansible_password=P@ssw0rd
 
 [devs:vars]
 ansible_user=root
@@ -32,18 +40,23 @@ ansible_password=P@ssw0rd
 ansible_user=root
 ansible_password=password
 
-[dev:vars]
+[hana:vars]
 ansible_user=root
 ansible_password=password
 
 [windows:vars]
 ansible_user=administrator
-ansible_password=P@ssw0rd
+ansible_password=P@ssw0rd!
 ansible_connection=winrm
 ansible_winrm_server_cert_validation=ignore
 
-[win:vars]
+[asiadomain:vars]
 ansible_user=administrator
 ansible_password=P@ssw0rd
 ansible_connection=winrm
 ansible_winrm_server_cert_validation=ignore
+[deploy]
+iqbal-deploy
+[deploy:vars]
+ansible_user=root
+ansible_password=P@ssw0rd

@@ -1,0 +1,23 @@
+- name: Updating configuration of new vm to localhost
+  hosts: localhost
+  tasks:
+  - name: checking deployed guest virtual machine
+    shell:  echo "192.168.110.69   iqbal-deploy" >> /etc/hosts
+
+  - name: updating inventory file one
+    shell:  echo "[deploy]" >> inventory
+
+  - name: updating inventory file two
+    shell:  echo "iqbal-deploy" >> inventory
+
+  - name: Copy SSH ECDSA key Fingerprint
+    expect:
+      timeout: 60
+      echo: yes
+      command:  ssh-copy-id root@iqbal-deploy
+      responses:
+        "Are you sure you want to continue connecting": "yes"
+        "password": "P@ssw0rd"
+    register: prompt
+  - debug:
+      var: prompt.stdout_lines

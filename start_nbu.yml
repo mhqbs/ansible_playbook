@@ -1,0 +1,14 @@
+- name: Starting All NetBackup Service
+  hosts: nbu
+  tasks:
+    - name: start pbx service
+      shell:  "/opt/VRTSpbx/bin/vxpbx_exchanged start"
+   
+    - name: start netbackup service
+      shell:  "/usr/openv/netbackup/bin/bp.start_all -f"
+    
+    - name: checking netbackup service
+      shell:  "/usr/openv/netbackup/bin/bpps -x"
+      register: stdout
+    - debug:
+        var: stdout

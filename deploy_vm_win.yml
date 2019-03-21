@@ -1,0 +1,63 @@
+---
+- name: Deploy a guest from a template
+  hosts:  localhost
+  vars:
+    vcenter_hostname: 192.168.110.11
+    vcenter_username: administrator
+    vcenter_password: P@ssw0rd 
+    v_name: iqbal-windeploy
+    v_template: iqbalwintemplate
+    v_datastore:  ESXi_Datastore_VM0
+  tasks:
+  - name: Create a virtual machine from a template
+    vmware_guest:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: no
+      datacenter: vcenter6
+      cluster: cluster
+      folder: /
+      name: "{{ v_name }}"
+      template: "{{ v_template }}"
+      state:  poweredon
+      disk:
+      - size_gb:  40
+        type: thin
+        datastore:  "{{ v_datastore }}"
+    delegate_to: localhost
+    register: deploy
+
+- name: change windows server hostname
+  hosts: windows
+  gather_facts: no
+  vars:
+    new_host: windeploynew
+    ip_new: 192.168.110.72
+    mask_new: 255.255.255.0
+    gate_new: 192.168.110.254
+
+  tasks:
+    - name: waiting connection
+      wait_for_connection:
+        delay: 60
+        timeout: 300
+    - name: Change hostname
+      win_command:  WMIC computersystem where caption='WINMSSQL' rename "{{ new_host }}"
+
+    - name: reboot machine
+      win_command:  shutdown /r /t 60
+
+    - name: Change IP Address
+      win_command:  netsh int ip set address "Ethernet0" static "{{ ip_new }}" "{{ mask_new }}" "{{ gate_new }}" 1
+      ignore_errors: yes
+
+- name: update hosts file
+  hosts:  localhost
+  gather_facts: no
+    new_host: windeploynew
+    ip_new: 192.168.110.72
+
+  tasks:
+    - name: updating hosts file
+      shell: echo "{{ ip_new }}"  "{{ new_host }}" >> /etc/hosts

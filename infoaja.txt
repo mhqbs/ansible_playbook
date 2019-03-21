@@ -1,0 +1,11 @@
+DistinguishedName : CN=user1,OU=User,OU=ID,DC=ASIA,DC=com
+Enabled           : True
+GivenName         : user1
+Name              : user1
+ObjectClass       : user
+ObjectGUID        : 8546b4dc-05f9-46e9-bed4-e3026e339694
+SamAccountName    : user1
+SID               : S-1-5-21-1679468147-4111609045-1248114236-1109
+Surname           : 
+UserPrincipalName : user1@ASIA.com
+

@@ -1,0 +1,119 @@
+---
+- name: Deploy a guest from a template
+  hosts:  localhost
+  gather_facts: no
+  vars:
+    vcenter_hostname: 192.168.110.11
+    vcenter_username: administrator
+    vcenter_password: P@ssw0rd 
+  tasks:
+  - name: Create a virtual machine from a template
+    vmware_guest:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: no
+      datacenter: vcenter6
+      cluster: cluster
+      folder: /
+      name: iqbal-deploy
+      state: poweredon
+      template: linuxtemplate
+      disk:
+      - size_gb: 16
+        type: thin
+        datastore: ESXi_Datastore_VM0
+      hardware:
+        memory_gb: 2
+        num_cpus: 2
+        num_cpu_cores_per_socket: 1
+        scsi: paravirtual
+        hotadd_cpu: True
+        hotremove_cpu: True
+        hotadd_memory: False
+      cdrom:
+        type: iso
+        iso_path: "[ESXi_Datastore_Critical] ISO/centos/CentOS-7-x86_64-DVD-1804.iso"
+      networks:
+      - name: DPortGroup-vlan30 
+        ip: 192.168.110.69
+        netmask:  255.255.255.0
+        gateway:  192.168.110.254
+      wait_for_ip_address: yes
+    delegate_to: localhost
+    register: deploy
+
+  - name: checking deployed guest virtual machine
+    shell:  echo "192.168.110.69    iqbal-deploy" >> /etc/hosts
+
+  - name: updating inventory file one
+    shell:  echo "[deploy]" >> inventory
+
+  - name: updating inventory file two
+    shell:  echo "iqbal-deploy" >> inventory
+
+  - name: updating inventory file one
+    shell:  echo "[deploy:vars]" >> inventory
+
+  - name: updating inventory file two
+    shell:  echo "ansible_user=root" >> inventory
+  
+  - name: updating inventory file two
+    shell:  echo "ansible_password=P@ssw0rd" >> inventory
+  
+  - name: Copy SSH ECDSA key Fingerprint
+    expect: 
+      timeout: 60
+      echo: yes
+      command:  ssh-copy-id root@iqbal-deploy
+      responses:
+        "Are you sure you want to continue connecting": "yes"
+        "password:": "P@ssw0rd"
+    register: prompt
+  - debug:
+      var: prompt.stdout_lines
+
+- name: runnning & install netbackup client
+  hosts: deploy
+  gather_facts: no
+  tasks:
+  - name: Sending netbackup client source
+    unarchive: 
+      src:  /home/admin/Downloads/NetBackup_8.1.2_CLIENTS2.tar.gz
+      dest: /tmp
+
+  - name: Install python-pexpect
+    copy:
+      src: /home/admin/ansi-man/imp-playbook/python-pexpect-3.3-6.1.noarch.rpm
+      dest: /tmp/
+
+  - name: Install rpm pexpect
+    shell:  rpm -Uvh /tmp/python-pexpect-3.3-6.1.noarch.rpm
+
+  - name: Adding master server hosts
+    shell:  echo "192.168.110.63   msnburhel" >> /etc/hosts
+
+  - name: Execute install netbackup 
+    expect: 
+      timeout: 300
+      echo: yes
+      command:  /tmp/NetBackup_8.1.2_CLIENTS2/install
+      responses:
+        "Do you wish to continue": "y"    
+        "Do you want to install the NetBackup client software for this client": "y"
+        "Enter the name of the NetBackup master server": "msnburhel"
+        "name of the NetBackup client": "y"
+        "Is this correct": "y"
+        "Enter the authorization token for msnburhel or q to skip": "WSVYOROQWNQYUJLO"
+    register: prompt
+  - debug:
+      var: prompt.stdout_lines
+
+  - name: start netbackup service
+    shell:  "/usr/openv/netbackup/bin/bp.start_all -f"
+
+  - name: remove temporary file
+    command:  rm -rf /tmp/NetBackup_8.1.2_CLIENTS2/
+
+  - name: remove temporary file
+    command:  rm -rf /tmp/python-pexpect-3.3-6.1.noarch.rpm

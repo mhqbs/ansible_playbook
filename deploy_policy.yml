@@ -1,0 +1,45 @@
+---
+- name: Deploying NetBackup Policy For Standard File System
+  hosts:  master
+  tasks:
+    - name: Creating netbackup policy
+      command:  /usr/openv/netbackup/bin/admincmd/bppolicynew filesystem_{{ item }}_policy
+      with_items:
+        - servera
+        - serverb
+        - serverc
+        - serverd
+
+    - name: Creating full backup schedule 
+      command:  /usr/openv/netbackup/bin/admincmd/bpplsched filesystem_{{ item }}_policy -add Full -st FULL -window 3600 7200
+      with_items:
+        - servera
+        - serverb
+        - serverc
+        - serverd
+    
+    - name: Creating incremental backup schedule 
+      command:  /usr/openv/netbackup/bin/admincmd/bpplsched filesystem_{{ item }}_policy -add Incr -st INCR -freq 86400 -rl 1 -window 64800 14400
+      with_items:
+        - servera
+        - serverb
+        - serverc
+        - serverd
+
+    - name: Adding backup client
+      command:  /usr/openv/netbackup/bin/admincmd/bpplclients filesystem_{{ item }}_policy  -add  {{ item }}  Linux RedHat
+      with_items:
+        - servera
+        - serverb
+        - serverc
+        - serverd
+
+    - name: Adding backup selection
+      command:  /usr/openv/netbackup/bin/admincmd/bpplinclude filesystem_{{ item }}_policy  -add /etc/hosts
+
+      with_items:
+        - servera
+        - serverb
+        - serverc
+        - serverd
+        

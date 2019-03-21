@@ -1,0 +1,38 @@
+- name: Installing Webserver
+  hosts: dev
+  become: true
+  tasks:
+    - name: Install a webserver
+      yum:
+        name: httpd
+        state: latest
+    - name: Start Service
+      service:
+        name: httpd
+        state: started
+    - name: Enable Service
+      service:
+        name: httpd
+        enabled: true
+    - name: Install a firewalld
+      yum:
+        name: firewalld
+        state: latest
+    - name: started firewalld
+      service:
+        name: firewalld
+        state: started
+    - name: Enable firewalld
+      service:
+        name: firewalld
+        enabled: true
+    - name: allow http
+      firewalld:
+        service: https
+        permanent: true
+        state: enabled
+        immediate: yes
+    - name: test html page is installed
+      copy:
+        content: "Welcome to the example.com intranet!\n"
+        dest: /var/www/html/index.html

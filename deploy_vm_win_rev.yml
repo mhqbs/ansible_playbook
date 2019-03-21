@@ -1,0 +1,42 @@
+---
+- name: Deploy a guest from a template
+  hosts:  localhost
+  vars:
+    vcenter_hostname: 192.168.110.11
+    vcenter_username: administrator
+    vcenter_password: P@ssw0rd 
+    v_name: iqbal-windeploy
+    v_template: iqbalwintemplate
+    v_datastore:  ESXi_Datastore_VM0
+  tasks:
+  - name: Create a virtual machine from a template
+    vmware_guest:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: no
+      datacenter: vcenter6
+      cluster: cluster
+      folder: /
+      name: "{{ v_name }}"
+      template: "{{ v_template }}"
+      disk:
+      - size_gb:  40
+        type: thin
+        datastore:  "{{ v_datastore }}"
+      networks:
+      - name: DPortGroup-vlan30
+        ip: 192.168.110.71
+        netmask:  255.255.255.0
+        gateway:  192.168.110.254
+        domain: asia.com
+        dns_servers:
+        - 192.168.110.186
+      customization:
+        autologon:  yes
+        dns_servers:
+        - 192.168.110.186
+        domain: asia.com
+        password: P@ssw0rd!
+    delegate_to: localhost
+    register: deploy
